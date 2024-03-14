@@ -1,15 +1,19 @@
-import { IsString, IsEmail, IsNotEmpty } from 'class-validator';
+import { IsString, IsEmail, IsInt } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { Role } from 'src/common/enums';
 import { IsRole } from 'src/common/decorators';
 
-export class CreateUserDto {
+export class UpdateUserDto {
+  @Transform(({ value }) => Number(value))
+  @IsInt()
+  id: number;
+
   @IsString()
   @IsEmail()
   email: string;
 
   @IsString()
-  @IsNotEmpty()
-  password: string;
+  password: string = '';
 
   @IsString()
   name?: string = '';

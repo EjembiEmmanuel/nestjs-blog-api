@@ -6,7 +6,10 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from './interfaces';
 import * as argon from 'argon2';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import {
+  PrismaClientKnownRequestError,
+  PrismaClientValidationError,
+} from '@prisma/client/runtime/library';
 
 @Injectable()
 export class UsersService {
@@ -31,6 +34,38 @@ export class UsersService {
         if (error.code === 'P2002') {
           throw new ForbiddenException('Credentials taken');
         }
+      }
+      throw error;
+    }
+  }
+
+  async update(user: User) {
+    try {
+      const updateData: any = {
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      };
+
+      if (user.password) {
+        const hashedPassword = await argon.hash(user.password);
+        updateData.password = hashedPassword;
+      }
+
+      const updatedUser = await this.prismaService.user.update({
+        where: {
+          id: user.id,
+        },
+        data: updateData,
+      });
+
+      return updatedUser;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new BadRequestException('User not found');
+        }
+      } else if (error instanceof PrismaClientValidationError) {
       }
       throw error;
     }
