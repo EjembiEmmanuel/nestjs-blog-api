@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from './interfaces';
 import * as argon from 'argon2';
@@ -30,5 +34,27 @@ export class UsersService {
       }
       throw error;
     }
+  }
+
+  async findAll() {
+    const users = await this.prismaService.user.findMany();
+
+    if (!users) {
+      throw new BadRequestException('Users not found');
+    }
+    return users;
+  }
+
+  async findOne(id: number) {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    return user;
   }
 }
