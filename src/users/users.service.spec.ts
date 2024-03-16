@@ -1,10 +1,10 @@
 import { UsersService } from './users.service';
 import { User } from './interfaces';
-import { ForbiddenException } from '@nestjs/common';
 import { Role } from '../common/enums';
 import * as argon from 'argon2';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../prisma/prisma.service';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 // Mocking argon library
 jest.mock('argon2', () => ({
@@ -67,11 +67,25 @@ describe('UsersService', () => {
       };
 
       prismaServiceMock.user.create.mockRejectedValue(
-        new ForbiddenException('Credentials taken'),
+        new PrismaClientKnownRequestError(
+          'Unique constraint failed on the {constraint}',
+          {
+            code: 'P2002',
+            clientVersion: '5.11.0',
+            meta: { target: ['email'] },
+          },
+        ),
       );
 
       await expect(usersService.create(newUser)).rejects.toThrow(
-        new ForbiddenException('Credentials taken'),
+        new PrismaClientKnownRequestError(
+          'Unique constraint failed on the {constraint}',
+          {
+            code: 'P2002',
+            clientVersion: '5.11.0',
+            meta: { target: ['email'] },
+          },
+        ),
       );
     });
   });
