@@ -6,18 +6,19 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  UsePipes,
+  UseFilters,
   ValidationPipe,
 } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { UsersService } from './users.service';
+import { PrismaExceptionFilter } from '../common/filters';
 
 @Controller('users')
+@UseFilters(PrismaExceptionFilter)
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Post()
-  @UsePipes()
   create(
     @Body(ValidationPipe)
     createUserDto: CreateUserDto,

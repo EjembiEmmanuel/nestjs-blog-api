@@ -1,15 +1,7 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { User } from './interfaces';
 import * as argon from 'argon2';
-import {
-  PrismaClientKnownRequestError,
-  PrismaClientValidationError,
-} from '@prisma/client/runtime/library';
 
 @Injectable()
 export class UsersService {
@@ -30,11 +22,6 @@ export class UsersService {
 
       return newUser;
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ForbiddenException('Credentials taken');
-        }
-      }
       throw error;
     }
   }
@@ -61,12 +48,6 @@ export class UsersService {
 
       return updatedUser;
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') {
-          throw new BadRequestException('User not found');
-        }
-      } else if (error instanceof PrismaClientValidationError) {
-      }
       throw error;
     }
   }
