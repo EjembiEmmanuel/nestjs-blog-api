@@ -55,22 +55,19 @@ export class UsersService {
   async findAll() {
     const users = await this.prismaService.user.findMany();
 
-    if (!users) {
+    if (users.length === 0) {
       throw new BadRequestException('Users not found');
     }
     return users;
   }
 
   async findOne(id: number) {
-    const user = await this.prismaService.user.findUnique({
+    const user = await this.prismaService.user.findUniqueOrThrow({
       where: {
         id: id,
       },
     });
 
-    if (!user) {
-      throw new BadRequestException('User not found');
-    }
     return user;
   }
 }
