@@ -7,11 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 // Mocking argon library
-jest.mock('argon2', () => ({
-  hash: jest
-    .fn()
-    .mockImplementation(async (password: string) => `hashed_${password}`),
-}));
+jest.mock('argon2');
 
 // Mocking PrismaService
 const prismaServiceMock = {
@@ -46,16 +42,24 @@ describe('UsersService', () => {
         role: Role.ADMIN,
       };
 
+      (argon.hash as jest.Mock).mockResolvedValue('hashedPassword');
       const passwordWithoutHash = newUser.password;
       const hashedPassword = await argon.hash(passwordWithoutHash);
       newUser.password = hashedPassword;
 
-      expect(argon.hash).toHaveBeenCalledWith(passwordWithoutHash);
-
       prismaServiceMock.user.create.mockResolvedValue(newUser);
 
       const result = await usersService.create(newUser);
+      expect(argon.hash).toHaveBeenCalledWith(passwordWithoutHash);
       expect(result).toEqual(newUser);
+      expect(prismaServiceMock.user.create).toHaveBeenCalledWith({
+        data: {
+          email: newUser.email,
+          name: newUser.name,
+          role: newUser.role,
+          password: newUser.password,
+        },
+      });
     });
 
     it('should throw ForbiddenException if credentials are taken', async () => {
@@ -90,5 +94,119 @@ describe('UsersService', () => {
     });
   });
 
-  // Similar tests can be written for other methods like update, findAll, and findOne
+  describe('update', () => {
+    it('should update user without password', async () => {
+      const user: any = {
+        id: 1,
+        email: 'test@example.com',
+        name: 'Test User',
+        role: Role.ADMIN,
+      };
+
+      prismaServiceMock.user.update.mockResolvedValue(user);
+
+      const result = await usersService.update(user);
+      expect(result).toEqual(user);
+      expect(prismaServiceMock.user.update).toHaveBeenCalledWith({
+        where: {
+          id: user.id,
+        },
+        data: {
+          email: user.email,
+          name: user.name,
+          role: user.role,
+        },
+      });
+    });
+
+    it('should update user with password', async () => {
+      const user: User = {
+        id: 1,
+        email: 'test@example.com',
+        password: 'password123',
+        name: 'Test User',
+        role: Role.ADMIN,
+      };
+
+      (argon.hash as jest.Mock).mockResolvedValue('hashedPassword');
+      const passwordWithoutHash = user.password;
+      const hashedPassword = await argon.hash(passwordWithoutHash);
+      user.password = hashedPassword;
+
+      prismaServiceMock.user.update.mockResolvedValue(user);
+
+      const result = await usersService.update(user);
+      expect(argon.hash).toHaveBeenCalledWith(passwordWithoutHash);
+      expect(result).toEqual(user);
+      expect(prismaServiceMock.user.update).toHaveBeenCalledWith({
+        where: {
+          id: user.id,
+        },
+        data: {
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          password: user.password,
+        },
+      });
+    });
+
+    it('should throw exception if user not found', async () => {
+      const user: User = {
+        id: 1,
+        email: 'test@example.com',
+        password: 'password123',
+        name: 'Test User',
+        role: Role.ADMIN,
+      };
+
+      prismaServiceMock.user.update.mockRejectedValue(
+        new PrismaClientKnownRequestError('Record not found', {
+          code: 'P2025',
+          clientVersion: '5.11.0',
+          meta: { modelName: 'USER' },
+        }),
+      );
+
+      await expect(usersService.update(user)).rejects.toThrow(
+        new PrismaClientKnownRequestError('Record not found', {
+          code: 'P2025',
+          clientVersion: '5.11.0',
+          meta: { modelName: 'USER' },
+        }),
+      );
+    });
+
+    it('should throw exception if credentials are taken', async () => {
+      const user: User = {
+        id: 1,
+        email: 'test@example.com',
+        password: 'password123',
+        name: 'Test User',
+        role: Role.ADMIN,
+      };
+
+      prismaServiceMock.user.update.mockRejectedValue(
+        new PrismaClientKnownRequestError(
+          'Unique constraint failed on the {constraint}',
+          {
+            code: 'P2002',
+            clientVersion: '5.11.0',
+            meta: { target: ['email'] },
+          },
+        ),
+      );
+
+      await expect(usersService.update(user)).rejects.toThrow(
+        new PrismaClientKnownRequestError(
+          'Unique constraint failed on the {constraint}',
+          {
+            code: 'P2002',
+            clientVersion: '5.11.0',
+            meta: { target: ['email'] },
+          },
+        ),
+      );
+    });
+  });
 });
