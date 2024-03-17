@@ -1,7 +1,7 @@
 import { IsString, IsEmail, IsInt } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { Role } from 'src/common/enums';
-import { IsRole } from 'src/common/decorators';
+import { Role } from '../../common/enums';
+import { IsRole } from '../../common/decorators';
 
 export class UpdateUserDto {
   @Transform(({ value }) => Number(value))

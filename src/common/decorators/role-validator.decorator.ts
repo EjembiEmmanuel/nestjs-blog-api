@@ -3,7 +3,7 @@ import {
   ValidationOptions,
   ValidationArguments,
 } from 'class-validator';
-import { Role } from 'src/common/enums'; // Make sure to import the correct enum path
+import { Role } from '../../common/enums'; // Make sure to import the correct enum path
 
 export function IsRole(validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {

@@ -1,6 +1,6 @@
 import { IsString, IsEmail, IsNotEmpty } from 'class-validator';
-import { Role } from 'src/common/enums';
-import { IsRole } from 'src/common/decorators';
+import { Role } from '../../common/enums';
+import { IsRole } from '../../common/decorators';
 
 export class CreateUserDto {
   @IsString()
