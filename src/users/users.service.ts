@@ -62,12 +62,16 @@ export class UsersService {
   }
 
   async findOne(id: number) {
-    const user = await this.prismaService.user.findUniqueOrThrow({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      const user = await this.prismaService.user.findUniqueOrThrow({
+        where: {
+          id: id,
+        },
+      });
 
-    return user;
+      return user;
+    } catch (error) {
+      throw error;
+    }
   }
 }

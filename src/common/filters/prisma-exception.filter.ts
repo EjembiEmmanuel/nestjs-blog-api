@@ -6,20 +6,26 @@ export class PrismaExceptionFilter implements ExceptionFilter {
   catch(exception: PrismaClientKnownRequestError, host: ArgumentsHost) {
     const response = host.switchToHttp().getResponse();
     let status = 500;
-    let message = 'An error occurred';
+    let message = 'Internal server error';
 
     // Handle the unique constraint validation error
     if (exception.code === 'P2002') {
+      const modelName = exception.meta?.modelName || 'record';
       const fieldName = exception.meta?.target || 'credentials';
       status = 400;
-      message = `A record with that ${fieldName} already exists`;
+      message = `A ${modelName} with that ${fieldName} already exists`;
     }
 
     // Handle the missing record error
     if (exception.code === 'P2025') {
-      const recordToUpdate = exception.meta?.modelName || 'Record';
+      console.log(exception);
+      if (exception.meta) {
+        const modelName = exception.meta.modelName;
+        message = `${modelName} to update not found`;
+      } else {
+        message = exception.message;
+      }
       status = 400;
-      message = `${recordToUpdate} not found`;
     }
 
     response.status(status).json({

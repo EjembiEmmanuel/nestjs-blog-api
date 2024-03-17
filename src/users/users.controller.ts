@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   UseFilters,
+  UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from './dto';
@@ -15,21 +16,17 @@ import { PrismaExceptionFilter } from '../common/filters';
 
 @Controller('users')
 @UseFilters(PrismaExceptionFilter)
+@UsePipes(new ValidationPipe({ transform: true }))
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Post()
-  create(
-    @Body(ValidationPipe)
-    createUserDto: CreateUserDto,
-  ) {
+  create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
   @Patch()
-  update(
-    @Body(new ValidationPipe({ transform: true })) updateUserDto: UpdateUserDto,
-  ) {
+  update(@Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(updateUserDto);
   }
 
