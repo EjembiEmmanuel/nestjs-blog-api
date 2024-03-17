@@ -5,6 +5,7 @@ import * as argon from 'argon2';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../prisma/prisma.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { BadRequestException } from '@nestjs/common';
 
 // Mocking argon library
 jest.mock('argon2');
@@ -15,7 +16,7 @@ const prismaServiceMock = {
     create: jest.fn(),
     update: jest.fn(),
     findMany: jest.fn(),
-    findUnique: jest.fn(),
+    findUniqueOrThrow: jest.fn(),
   },
 };
 
@@ -62,7 +63,7 @@ describe('UsersService', () => {
       });
     });
 
-    it('should throw ForbiddenException if credentials are taken', async () => {
+    it('should throw exception if credentials are taken', async () => {
       const newUser: User = {
         email: 'test@example.com',
         password: 'password123',
@@ -206,6 +207,70 @@ describe('UsersService', () => {
             meta: { target: ['email'] },
           },
         ),
+      );
+    });
+  });
+
+  describe('findAll', () => {
+    it('should return and array of users', async () => {
+      const users: User[] = [
+        {
+          id: 1,
+          email: 'test@test.com',
+          password: 'password',
+          name: 'Test User',
+          role: Role.ADMIN,
+        },
+      ];
+
+      prismaServiceMock.user.findMany.mockResolvedValue(users);
+
+      const result = await usersService.findAll();
+      expect(result).toEqual(users);
+      expect(prismaServiceMock.user.findMany).toHaveBeenCalled();
+    });
+
+    it('should throw exception if there are no users found', async () => {
+      prismaServiceMock.user.findMany.mockRejectedValue(
+        new BadRequestException('Users not found'),
+      );
+
+      await expect(usersService.findAll()).rejects.toThrow(
+        new BadRequestException('Users not found'),
+      );
+    });
+  });
+
+  describe('findOne', () => {
+    it('should return a user', async () => {
+      const user: User = {
+        id: 1,
+        email: 'test@test.com',
+        password: 'password',
+        name: 'Test User',
+        role: Role.ADMIN,
+      };
+
+      const id: number = 1;
+
+      prismaServiceMock.user.findUniqueOrThrow.mockResolvedValue(user);
+
+      const result = await usersService.findOne(id);
+      expect(result).toEqual(user);
+      expect(prismaServiceMock.user.findUniqueOrThrow).toHaveBeenCalledWith({
+        where: {
+          id: id,
+        },
+      });
+    });
+
+    it('should throw exception if no user found', async () => {
+      prismaServiceMock.user.findUniqueOrThrow.mockRejectedValue(
+        new BadRequestException('Users not found'),
+      );
+
+      await expect(usersService.findAll()).rejects.toThrow(
+        new BadRequestException('Users not found'),
       );
     });
   });
