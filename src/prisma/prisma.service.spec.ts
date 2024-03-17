@@ -1,18 +1,34 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from './prisma.service';
 
 describe('PrismaService', () => {
-  let service: PrismaService;
+  let prismaService: PrismaService;
+  let configService: ConfigService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PrismaService],
+      providers: [
+        PrismaService,
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn().mockReturnValue('DATABASE_URL'),
+          },
+        },
+      ],
     }).compile();
 
-    service = module.get<PrismaService>(PrismaService);
+    prismaService = module.get<PrismaService>(PrismaService);
+    configService = module.get<ConfigService>(ConfigService);
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    expect(prismaService).toBeDefined();
+  });
+
+  it('should create PrismaClient instance with correct URL', () => {
+    expect(prismaService).toBeInstanceOf(PrismaService);
+    expect(configService.get<string>('database.url')).toEqual('DATABASE_URL');
   });
 });
