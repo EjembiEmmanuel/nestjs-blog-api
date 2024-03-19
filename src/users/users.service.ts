@@ -61,11 +61,25 @@ export class UsersService {
     return users;
   }
 
-  async findOne(id: number) {
+  async findOneById(id: number) {
     try {
       const user = await this.prismaService.user.findUniqueOrThrow({
         where: {
           id: id,
+        },
+      });
+
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async findOneByEmail(email: string) {
+    try {
+      const user = await this.prismaService.user.findUniqueOrThrow({
+        where: {
+          email: email,
         },
       });
 

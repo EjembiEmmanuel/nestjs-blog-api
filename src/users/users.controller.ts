@@ -36,7 +36,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.findOne(id);
+  findOneById(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.findOneById(id);
   }
 }
