@@ -241,7 +241,7 @@ describe('UsersService', () => {
     });
   });
 
-  describe('findOne', () => {
+  describe('findOneById', () => {
     it('should return a user', async () => {
       const user: User = {
         id: 1,
@@ -255,7 +255,7 @@ describe('UsersService', () => {
 
       prismaServiceMock.user.findUniqueOrThrow.mockResolvedValue(user);
 
-      const result = await usersService.findOne(id);
+      const result = await usersService.findOneById(id);
       expect(result).toEqual(user);
       expect(prismaServiceMock.user.findUniqueOrThrow).toHaveBeenCalledWith({
         where: {
