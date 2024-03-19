@@ -97,7 +97,7 @@ describe('UsersController', () => {
 
       usersServiceMock.findOne.mockResolvedValue(user);
 
-      const result = await controller.findOne(id);
+      const result = await controller.findOneById(id);
       expect(result).toEqual(user);
       expect(usersServiceMock.findOne).toHaveBeenCalledWith(id);
     });
