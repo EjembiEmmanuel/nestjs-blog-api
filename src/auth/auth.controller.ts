@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto, SignInDto } from './dto';
-import { PrismaExceptionFilter } from 'src/common/filters';
+import { PrismaExceptionFilter } from '../common/filters';
 
 @Controller('auth')
 @UseFilters(PrismaExceptionFilter)
