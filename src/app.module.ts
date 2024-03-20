@@ -9,6 +9,7 @@ import authConfig from 'config/auth.config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards';
 import { PostsModule } from './posts/posts.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { PostsModule } from './posts/posts.module';
     ProfileModule,
     AuthModule,
     PostsModule,
+    CommentsModule,
   ],
   controllers: [],
   providers: [
