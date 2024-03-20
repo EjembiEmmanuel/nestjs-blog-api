@@ -2,10 +2,14 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { SignIn, User } from './interfaces';
 import * as argon from 'argon2';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService,
+  ) {}
 
   async signUp(user: User) {
     return this.usersService.create(user);
@@ -24,7 +28,10 @@ export class AuthService {
         throw new UnauthorizedException('Incorrect password');
       }
 
-      return user;
+      const payload = { email: user.email, sub: user.id };
+      return {
+        access_token: this.jwtService.sign(payload),
+      };
     } catch (error) {
       throw error;
     }

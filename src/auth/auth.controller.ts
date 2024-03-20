@@ -9,8 +9,10 @@ import {
 import { AuthService } from './auth.service';
 import { SignUpDto, SignInDto } from './dto';
 import { PrismaExceptionFilter } from '../common/filters';
+import { Public } from '../common/decorators';
 
 @Controller('auth')
+@Public()
 @UseFilters(PrismaExceptionFilter)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class AuthController {

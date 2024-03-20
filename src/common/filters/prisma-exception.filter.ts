@@ -18,7 +18,6 @@ export class PrismaExceptionFilter implements ExceptionFilter {
 
     // Handle the missing record error
     if (exception.code === 'P2025') {
-      console.log(exception);
       if (exception.meta) {
         const modelName = exception.meta.modelName;
         message = `${modelName} to update not found`;
