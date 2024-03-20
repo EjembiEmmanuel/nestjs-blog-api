@@ -7,16 +7,21 @@ import {
   Patch,
   Post,
   UseFilters,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { UsersService } from './users.service';
 import { PrismaExceptionFilter } from '../common/filters';
+import { Roles } from '../common/decorators';
+import { Role } from '../common/enums';
+import { RolesGuard } from 'src/auth/guards';
 
 @Controller('users')
 @UseFilters(PrismaExceptionFilter)
 @UsePipes(new ValidationPipe({ transform: true }))
+@UseGuards(RolesGuard)
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
@@ -31,6 +36,7 @@ export class UsersController {
   }
 
   @Get()
+  @Roles(Role.ADMIN)
   findAll() {
     return this.usersService.findAll();
   }
