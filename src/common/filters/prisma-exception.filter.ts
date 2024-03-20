@@ -16,6 +16,11 @@ export class PrismaExceptionFilter implements ExceptionFilter {
       message = `A ${modelName} with that ${fieldName} already exists`;
     }
 
+    if (exception.code === 'P2003') {
+      status = 400;
+      message = 'No user found with the specified author id';
+    }
+
     // Handle the missing record error
     if (exception.code === 'P2025') {
       if (exception.meta) {

@@ -7,7 +7,8 @@ import { AuthModule } from './auth/auth.module';
 import databaseConfig from 'config/database.config';
 import authConfig from 'config/auth.config';
 import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard, RolesGuard } from './auth/guards';
+import { JwtAuthGuard } from './auth/guards';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { JwtAuthGuard, RolesGuard } from './auth/guards';
     UsersModule,
     ProfileModule,
     AuthModule,
+    PostsModule,
   ],
   controllers: [],
   providers: [
@@ -27,10 +29,6 @@ import { JwtAuthGuard, RolesGuard } from './auth/guards';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: RolesGuard,
-    // },
   ],
 })
 export class AppModule {}

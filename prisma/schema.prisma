@@ -14,22 +14,26 @@ datasource db {
 }
 
 model User {
-  id       Int       @id @default(autoincrement())
-  email    String    @unique
-  password String
-  name     String?
-  role     Role      @default(USER)
-  posts    Post[]
-  profile  Profile?
-  comments Comment[]
-  replies  Reply[]
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  name      String?
+  role      Role      @default(USER)
+  posts     Post[]
+  profile   Profile?
+  comments  Comment[]
+  replies   Reply[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Profile {
-  id     Int    @id @default(autoincrement())
-  bio    String
-  user   User   @relation(fields: [userId], references: [id])
-  userId Int    @unique
+  id        Int      @id @default(autoincrement())
+  bio       String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int      @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Post {
@@ -40,16 +44,20 @@ model Post {
   author    User?     @relation(fields: [authorId], references: [id])
   authorId  Int?
   comments  Comment[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Comment {
-  id       Int     @id @default(autoincrement())
-  content  String?
-  Post     Post?   @relation(fields: [postId], references: [id])
-  postId   Int?
-  author   User?   @relation(fields: [authorId], references: [id])
-  authorId Int?
-  replies  Reply[]
+  id        Int      @id @default(autoincrement())
+  content   String?
+  Post      Post?    @relation(fields: [postId], references: [id])
+  postId    Int?
+  author    User?    @relation(fields: [authorId], references: [id])
+  authorId  Int?
+  replies   Reply[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Reply {
@@ -59,6 +67,8 @@ model Reply {
   authorId  Int?
   comment   Comment? @relation(fields: [commentId], references: [id])
   commentId Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum Role {
