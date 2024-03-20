@@ -12,7 +12,20 @@ export class AuthService {
   ) {}
 
   async signUp(user: User) {
-    return this.usersService.create(user);
+    try {
+      const newUser = await this.usersService.create(user);
+
+      const payload = {
+        sub: newUser.id,
+        email: newUser.email,
+        role: newUser.role,
+      };
+      return {
+        access_token: this.jwtService.sign(payload),
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 
   async signIn(signIn: SignIn) {
